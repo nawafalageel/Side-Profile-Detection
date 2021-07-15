@@ -1,0 +1,207 @@
+<!DOCTYPE HTML>
+<html>
+  <body>
+    <svg width="600" height="600" vertion="1.1"
+    id="svg" xmlns="http://www.w3.org/2000/svg">
+
+      <defs>
+        <clipPath id="angleClip">
+          <polygon id="atriangle" />
+        </clipPath>
+      </defs>
+    </svg>
+    <script>
+
+      var radius = 91
+      var cx     = 100
+      var cy     = 100
+
+      function xOfRads(a) {
+        return cx + radius * Math.cos(a)
+      }
+
+      function yOfRads(a) {
+        return cy - radius * Math.sin(a)
+      }
+
+      function ptOfAngleInRadians(a) {
+        return xOfRads(a) + ' ' + yOfRads(a)
+      }
+
+      // This expects an array of radians as input.
+      // The output is formatted for use as a 'points' value in a polygon elt.
+      function polyPoints(arr) {
+        var s = []
+        for (var i = 0; i < arr.length; i++) {
+          s.push(ptOfAngleInRadians(arr[i]))
+        }
+        return s.join(', ')
+      }
+
+      function dist(x1, y1, x2, y2) {
+        var d1 = x1 - x2
+        var d2 = y1 - y2
+        return Math.sqrt(d1 * d1 + d2 * d2)
+      }
+
+      function addAttributes(elt, attr) {
+        for (var key in attr) {
+          elt.setAttribute(key, attr[key])
+        }
+        return elt
+      }
+
+      function add(eltName, attr) {
+        var elt = document.createElementNS(svgNS, eltName)
+        svg.appendChild(elt)
+        if (attr) addAttributes(elt, attr)
+        return elt
+      }
+
+      function addDot() {
+        var dotStyle = {stroke: 'transparent', fill: '#444', r: 3}
+        return add('circle', dotStyle)
+      }
+
+
+      // Begin instance-specific code.
+
+      var svg = document.getElementById('svg')
+      var svgNS = svg.namespaceURI
+
+      var lightStyle = {stroke: '#ddd', fill: 'transparent', 'stroke-width': 3}
+      var darkStyle = {stroke: '#666', fill: 'transparent', 'stroke-width': 3}
+
+      // Circle.
+      var circle = add('circle', lightStyle)
+      addAttributes(circle, {cx: cx, cy: cy, r: radius, stroke: '#f0f0f0'})
+
+      // Set up some angles we'll use in a few places.
+      var rads = [1.0, 2.3, 4.6]
+      var pi   = Math.PI
+
+      // Add the triangle; we'll use a function to position it, so just add the
+      // elements for now.
+      var triSides  = []
+      var triPoints = []
+      var colors = ['#D98162', '#4586A5', '#CC6969']
+      var shadedArea = add('polygon', {stroke: 'transparent', fill: '#e2e2e2'})
+      for (var i = 0; i < 3; i++) {
+        triSides[i]  = add('line', darkStyle)
+        addAttributes(triSides[i], {stroke: colors[i]})
+      }
+      for (var i = 0; i < 3; i++) triPoints[i] = addDot()
+
+      // Add side length indicators and labels for them.
+      var sideLens = []
+      var sideLabels = []
+      var labels = ['a', 'b', 'c']
+      var labelStyle = {'font-family': 'Charter',
+                        'font-size': 19,
+                        'font-style': 'italic'}
+      for (var i = 0; i < 3; i++) {
+        sideLens[i] = add('line', darkStyle)
+        addAttributes(sideLens[i], {stroke: colors[i]})
+
+        sideLabels[i] = add('text', labelStyle)
+        sideLabels[i].innerHTML = labels[i]
+      }
+
+      var xOfLabels = 203
+      var xOfValues = xOfLabels + 17
+
+      // Add labels for abc/4 and area.
+      var eqnLabels = []
+      var eqnLabelStrings = ['abc/4', 'area']
+      var eqnValues = []
+      var valueStyle = {'font-family': 'Courier New', 'font-size': 19}
+      for (var i = 0; i < 2; i++) {
+        eqnLabels[i] = add('text', labelStyle)
+        eqnLabels[i].innerHTML = eqnLabelStrings[i]
+        addAttributes(eqnLabels[i], {x: xOfLabels, y: 117 + 50 * i})
+
+        eqnValues[i] = add('text', valueStyle)
+        addAttributes(eqnValues[i], {x: xOfValues, y: 140 + 50 * i})
+        addAttributes(eqnValues[i], {fill: '#999'})
+      }
+
+      var a, b, c  // Mathematical side lengths (for a unit circle).
+
+      function updateABC() {
+        var x = [], y = []
+        var lens = []
+        for (var i = 0; i < 3; i++) {
+          x[i] = Math.cos(rads[i])
+          y[i] = Math.sin(rads[i])
+        }
+        for (var i = 0; i < 3; i++) {
+          var dx = x[i] - x[(i + 1) % 3]
+          var dy = y[i] - y[(i + 1) % 3]
+          lens[i] = Math.sqrt(dx * dx + dy * dy)
+        }
+        a = lens[0], b = lens[1], c = lens[2]
+      }
+
+      function abcOverFour() {
+        return a * b * c / 4
+      }
+
+      function heronsFormula() {
+        var s = (a + b + c) / 2
+        return Math.sqrt(s * (s - a) * (s - b) * (s - c))
+      }
+
+      function moveTriangle(rads) {
+        for (var i = 0; i < 3; i++) {
+          var r1 = rads[i]
+          var r2 = rads[(i + 1) % 3]
+          var x1 = xOfRads(r1), y1 = yOfRads(r1)
+          var x2 = xOfRads(r2), y2 = yOfRads(r2)
+          addAttributes(triSides[i], {x1: x1, y1: y1, x2: x2, y2: y2,
+                                      'stroke-width': 4})
+          addAttributes(triPoints[i], {cx: xOfRads(r1), cy: yOfRads(r1)})
+          var dx = x1 - x2, dy = y1 - y2
+          var len = Math.sqrt(dx * dx + dy * dy) / (2 * radius) * 70
+          var y = 23 + i * 28
+          addAttributes(sideLens[i], {x1: xOfValues, y1: y,
+                                      x2: xOfValues + len, y2: y})
+          addAttributes(sideLabels[i], {x: xOfLabels, y: y + 5})
+        }
+        addAttributes(shadedArea, {points: polyPoints(rads)})
+
+        // Update the area-oriented values.
+        updateABC()
+        var area0 = abcOverFour()
+        eqnValues[0].innerHTML = area0.toFixed(3) + '..'
+        var area1 = heronsFormula()
+        eqnValues[1].innerHTML = area1.toFixed(3) + '..'
+      }
+
+      moveTriangle(rads)
+
+
+      // Animation code.
+
+      var lastTimestamp = null
+      var baseRadiansPerMilliSec = 0.0007
+
+      function step(timestamp) {
+        if (lastTimestamp !== null) {
+          var milliSecDelta = timestamp - lastTimestamp
+          var radiansDelta = baseRadiansPerMilliSec * milliSecDelta
+          var factors = [1, 2, -1]
+          for (var i = 0; i < 3; i++) {
+            rads[i] += radiansDelta * factors[i]
+          }
+          moveTriangle(rads)
+        }
+        lastTimestamp = timestamp
+        window.requestAnimationFrame(step)
+      }
+
+      // Initialize the animation.
+      window.requestAnimationFrame(step)
+
+    </script>
+  </body>
+</html>
