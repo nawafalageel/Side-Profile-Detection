@@ -8,11 +8,12 @@
         <clipPath id="angleClip">
           <polygon id="atriangle" />
         </clipPath>
-      </defs>
+      </defs> 
     </svg>
+    
     <script>
 
-      var radius = 91
+      var radius = 90
       var cx     = 100
       var cy     = 100
 
@@ -25,7 +26,7 @@
       }
 
       function ptOfAngleInRadians(a) {
-        return xOfRads(a) + ' ' + yOfRads(a)
+        return xOfRads(a) + '' + yOfRads(a)
       }
 
       // This expects an array of radians as input.
@@ -38,6 +39,7 @@
         return s.join(', ')
       }
 
+      // Here I can use the angle formula to compute the angles
       function dist(x1, y1, x2, y2) {
         var d1 = x1 - x2
         var d2 = y1 - y2
@@ -59,7 +61,7 @@
       }
 
       function addDot() {
-        var dotStyle = {stroke: 'transparent', fill: '#444', r: 3}
+        var dotStyle = {stroke: 'transparent', fill: '#000', r: 3}
         return add('circle', dotStyle)
       }
 
@@ -112,7 +114,7 @@
 
       // Add labels for abc/4 and area.
       var eqnLabels = []
-      var eqnLabelStrings = ['abc/4', 'area']
+      var eqnLabelStrings = ["1", "2"]
       var eqnValues = []
       var valueStyle = {'font-family': 'Courier New', 'font-size': 19}
       for (var i = 0; i < 2; i++) {
