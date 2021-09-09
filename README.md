@@ -27,7 +27,7 @@ Facial Landmarks and Illustration for eyes anglesAs shown in the figure we are 
 After the model produces the landmarks we draw an "imaginary" line between three points i.e., right eye, left eye, and the nose. Forming a triangle and through that triangle, we calculate the angle $\theta_1$ and $\theta_2$. This step, geometric object that possesses both a magnitude and a direction. A vector can be pictured as an arrow or a line. Its magnitude is its length, and its direction is the direction that the line points to. For more details, I would recommend to see  [Manivannan](https://manivannan-ai.medium.com/find-the-angle-between-three-points-from-2d-using-python-348c513e2cd) post about how to calculate angles with python, also thanks to him since his post helped me a lot. Next figure demonstrate how to calculate angles:
 ![Calculating angles](Examples/CalculateAngles.png)
 
-And here example from 
+And here an example from 
 [Head Pose Image Database](http://crowley-coutaz.fr/Head%20Pose%20Image%20Database.html):
 
 ![HPID Example](Examples/FacePan.gif)
