@@ -3,6 +3,7 @@
   - [Natively](#natively)
   - [Docker](#docker)
 - [Face Pose Detection](#face-pose-detection)
+  - [How to use](#howtouse)
 
 
 # Installation
@@ -12,6 +13,14 @@
 ## Docker
 ```docker soon :(( ```
 
+# How to use
+You can see the example [notebook](Notebooks/FacePoseDetection.ipynb). Also you can install all the requirements and run this command
+
+```python DetectFacePose.py -p <image_path> ```
+
+or 
+
+```python DetectFacePose.py -u <image_URL> ```
 
 # Face Pose Detection 
 This repo will look into a technique that might help detect face orientation or pose. And I will focus on only detecting three main poses which are:
