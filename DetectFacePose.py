@@ -10,8 +10,10 @@ import torch
 parser = argparse.ArgumentParser("Face pose detection for one face")
 parser.add_argument("-p", "--path", help="To use image path.", type=str)
 parser.add_argument("-u", "--url", help="To use image url", type=str)
-argis = parser.parse_args()
+args = parser.parse_args()
 
+path = args.path
+url = args.url
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 print(f'Running on device: {device}')
@@ -35,68 +37,86 @@ def npAngle(a, b, c):
     
     return np.degrees(angle)
 
-def visualize(image, landmarks, angle_R, angle_L, pred):
-    fig , ax = plt.subplots(1, 1, figsize= (10,10))
-    ax.set_title("Output Image")
-    ax.imshow(image)
-    point1 = [landmarks[0][0][0], landmarks[0][1][0]]
-    point2 = [landmarks[0][0][1], landmarks[0][1][1]]
-
-    point3 = [landmarks[0][2][0], landmarks[0][0][0]]
-    point4 = [landmarks[0][2][1], landmarks[0][0][1]]
+def visualize(image, landmarks_, angle_R_, angle_L_, pred_):
+    fig , ax = plt.subplots(1, 1, figsize= (8,8))
     
-    point5 = [landmarks[0][2][0], landmarks[0][1][0]]
-    point6 = [landmarks[0][2][1], landmarks[0][1][1]]
-    for land in landmarks[0]:
-        ax.scatter(land[0], land[1])
-    plt.plot(point1, point2, 'y', linewidth=3)
-    plt.plot(point3, point4, 'y', linewidth=3)
-    plt.plot(point5, point6, 'y', linewidth=3)
-    plt.text(10, 10, f"Detect: {pred} \n Angles: {math.floor(angle_L)}, {math.floor(angle_R)}", 
-            size=20, ha="center", va="center", bbox={'facecolor': 'white', 'alpha': 0.5, 'pad': 10})
-    
-    return plt.show()
+    leftCount = len([i for i in pred_ if i == 'Left Profile'])
+    rightCount = len([i for i in pred_ if i == 'Right Profile'])
+    frontalCount = len([i for i in pred_ if i == 'Frontal'])
+    facesCount = len(pred_) # Number of detected faces (above the threshold)
+    ax.set_title(f"Number of detected faces = {facesCount} \n frontal = {frontalCount}, left = {leftCount}, right = {rightCount}")
+    for landmarks, angle_R, angle_L, pred in zip(landmarks_, angle_R_, angle_L_, pred_):
+        
+        if pred == 'Frontal':
+            color = 'white'
+        elif pred == 'Right Profile':
+            color = 'blue'
+        else:
+            color = 'red'
+            
+        point1 = [landmarks[0][0], landmarks[1][0]]
+        point2 = [landmarks[0][1], landmarks[1][1]]
 
-def predFacePose(arg):
+        point3 = [landmarks[2][0], landmarks[0][0]]
+        point4 = [landmarks[2][1], landmarks[0][1]]
 
-    if arg.path is not None:
+        point5 = [landmarks[2][0], landmarks[1][0]]
+        point6 = [landmarks[2][1], landmarks[1][1]]
+        for land in landmarks:
+            ax.scatter(land[0], land[1])
+        plt.plot(point1, point2, 'y', linewidth=3)
+        plt.plot(point3, point4, 'y', linewidth=3)
+        plt.plot(point5, point6, 'y', linewidth=3)
+        plt.text(point1[0], point2[0], f"{pred} \n {math.floor(angle_L)}, {math.floor(angle_R)}", 
+                size=20, ha="center", va="center", color=color)
+        ax.imshow(image)
+        fig.savefig('Output_detection.jpg')
+    return print('Done detect')
+
+def predFacePose(path, url):
+
+    if path is not None:
         try:
-            im = Image.open(arg.path)
+            im = Image.open(path)
         except Exception as e:
             return print(f"Issue with image path: {e}")
     else:
         try:
-            im = Image.open(requests.get(arg.url, stream=True).raw)
+            im = Image.open(requests.get(url, stream=True).raw)
         except Exception as e:
             return print(f"Issue with image URL: {e}")
     
-    if im.mode != "RGB": # Convert the image if it has more than 3 channels, because MTCNN will refuse anything more than 3 channels.
+    if im.mode != "RGB": # Convert the image if it has more than 3 channels, because MTCNN does not accept more than 3 channels.
         im = im.convert('RGB')
     
     with torch.no_grad():
-        bbox, prob, landmarks = mtcnn.detect(im, landmarks=True) # The detection part producing bounding box, probability of the detected face, and the facial landmarks
-
-    if bbox is not None: # To check if we detect a face in the image or not.
-        if len(bbox) == 1:# To check if we detect more then one face.
-
-                print(f"Detection probability = {prob}")
-                angR = npAngle(landmarks[0][0], landmarks[0][1], landmarks[0][2]) # Calculate the right eye angle
-                angL = npAngle(landmarks[0][1], landmarks[0][0], landmarks[0][2])# Calculate the left eye angle
-
+        bbox_, prob_, landmarks_ = mtcnn.detect(im, landmarks=True) # The detection part producing bounding box, probability of the detected face, and the facial landmarks
+    
+    angle_R_List = []
+    angle_L_List = []
+    predLabelList = []
+    for bbox, landmarks, prob in zip(bbox_, landmarks_, prob_):
+        if bbox is not None: # To check if we detect a face in the image
+            if prob > 0.9: # To check if the detected face has probability more than 90%, to avoid 
+                angR = npAngle(landmarks[0], landmarks[1], landmarks[2]) # Calculate the right eye angle
+                angL = npAngle(landmarks[1], landmarks[0], landmarks[2])# Calculate the left eye angle
+                angle_R_List.append(angR)
+                angle_L_List.append(angL)
                 if ((int(angR) in range(35, 57)) and (int(angL) in range(35, 58))):
                     predLabel='Frontal'
-                    visualize(im, landmarks, angR, angL, predLabel)
+                    predLabelList.append(predLabel)
                 else: 
                     if angR < angL:
                         predLabel='Left Profile'
                     else:
                         predLabel='Right Profile'
-                    visualize(im, landmarks, angR, angL, predLabel)
+                    predLabelList.append(predLabel)
+            else:
+                print('The detected face is Less then the detection threshold')
         else:
-            return print('More than one face detected in the image')
-    else:
-        return print('No face detected in the image')
+            print('No face detected in the image')
+    visualize(im, landmarks_, angle_R_List, angle_L_List, predLabelList)
 
 
 if __name__ == '__main__':
-    predFacePose(argis)
+    predFacePose(path, url)
