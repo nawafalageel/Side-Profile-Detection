@@ -30,4 +30,4 @@ And here an example from
 
 ![HPID Example](Examples/FacePan.gif)
 
-For more details see the full document [Here]()
+For more details see the full document [Here](Documents/FacePoseDetection.pdf). 
