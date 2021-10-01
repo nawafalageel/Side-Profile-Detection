@@ -10,9 +10,7 @@
 ```pip install -r requirements.txt```
 
 ## Docker
-```docker build ```
-
-```docker run -```
+```docker soon :(( ```
 
 
 # Face Pose Detection 
@@ -31,3 +29,5 @@ And here an example from
 [Head Pose Image Database](http://crowley-coutaz.fr/Head%20Pose%20Image%20Database.html):
 
 ![HPID Example](Examples/FacePan.gif)
+
+For more details see the full document [Here]()
