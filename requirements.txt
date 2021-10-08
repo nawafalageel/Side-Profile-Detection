@@ -1,6 +1,7 @@
-numpy==1.18.2
-torch==1.6.0
+torch==1.9.1
 requests==2.25.1
-facenet_pytorch==2.5.2
+opencv_python_headless==4.5.2.52
 matplotlib==3.3.4
-Pillow==8.3.1
+numpy==1.18.2
+facenet_pytorch==2.5.2
+Pillow==8.3.2

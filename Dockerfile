@@ -1,13 +1,13 @@
-FROM pytorch/pytorch:1.6.0-cuda10.1-cudnn7-runtime
+FROM python:3.7-slim
 
 COPY . /app
 
-RUN pip install -r requirements.txt
-
 WORKDIR /app
 
-ENV readingimage default_reading
-ENV image default_image
+RUN pip install -r requirements.txt
 
-CMD [ "python",  " DetectFacePose.py ${readingimage} ${image}"]
+#ENV readingimage default_reading
+#ENV image default_image
+#${readingimage} ${image}
+CMD [ "python",  "DetectFacePose.py" ]
 

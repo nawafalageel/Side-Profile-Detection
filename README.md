@@ -18,9 +18,12 @@ You can see the example [notebook](Notebooks/FacePoseDetection.ipynb). Also you 
 
 ```python DetectFacePose.py -p <image_path> ```
 
-or 
+use  `-u <image_URL>` for urls.
 
-```python DetectFacePose.py -u <image_URL> ```
+
+Or run the command with no argument it will use your camera
+
+```python DetectFacePose.py  ```
 
 # Face Pose Detection 
 This repo will look into a technique that might help detect face orientation or pose. And I will focus on only detecting three main poses which are:
