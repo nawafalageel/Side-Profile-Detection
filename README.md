@@ -11,10 +11,19 @@
 ```pip install -r requirements.txt```
 
 ## Docker
-```docker soon :(( ```
+
+The continer runs a jupyter notebook server with all requirements.
+
+```docker build -t facepose:v0 .```
+
+```docker run -p 10091:8888 facepose:v0```
+
+to use the notebook with gpu:
+
+```docker run -p 10091:8888 --gpus all facepose:v0```
 
 # How to use
-You can see the example [notebook](Notebooks/FacePoseDetection.ipynb). Also you can install all the requirements and run this command
+You can see the example [notebook](Notebooks/FacePoseDetection.ipynb) and to make the installation eaiser use docker. Also you can install all the requirements and run this command
 
 ```python DetectFacePose.py -p <image_path> ```
 

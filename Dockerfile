@@ -6,8 +6,9 @@ WORKDIR /app
 
 RUN pip install -r requirements.txt
 
-#ENV readingimage default_reading
-#ENV image default_image
-#${readingimage} ${image}
-CMD [ "python",  "DetectFacePose.py" ]
+RUN pip install jupyter
+
+EXPOSE 8888
+
+CMD jupyter notebook --no-browser --ip=0.0.0.0 --port 8888 --allow-root --NotebookApp.token='' --NotebookApp.allow_origin='*'
 
